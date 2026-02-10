@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 import numpy as np
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from pydantic import BaseModel
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -115,6 +115,21 @@ def topic_probabilities(text: str) -> Dict[str, float]:
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/classify")
+def classify_get(
+    text: str = Query(
+        ...,
+        min_length=1,
+        max_length=5000,
+        description="Testo da classificare",
+    )
+):
+    return {
+        "class": topic(text),
+        "probabilities": topic_probabilities(text),
+    }
 
 
 @app.post("/classify")
